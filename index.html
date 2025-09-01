@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Interactivo de Rampa de Doble Acceso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (Neutrals with muted blue accent) -->
+    <!-- Application Structure Plan: A tabbed/section-based SPA with five sections: Overview, Hydraulic Circuit, Electrical Circuit, Interactive Simulation, and Safety. This structure modularizes the complex system, allowing users to focus on one aspect at a time. The core feature is the interactive simulation, which dynamically visualizes the operational sequences, providing a more engaging and effective learning experience than a static presentation. -->
+    <!-- Visualization & Content Choices: The main visualizations are conceptual diagrams of the hydraulic and electrical circuits, built with HTML/CSS (Tailwind) to allow for JS-powered interactivity (hover/click to see descriptions, highlighting during simulation). Report Info: Component descriptions -> Goal: Organize/Inform -> Presentation: Interactive HTML diagram -> Interaction: Hover/Click to display info in a side panel. Report Info: Operational sequences -> Goal: Change/Relationships -> Presentation: Step-by-step animation on the diagrams -> Interaction: User triggers simulation with buttons, JS highlights components and updates text sequentially. This method is chosen to clearly demonstrate cause-and-effect within the system. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .section-active {
+            color: #2563eb; /* blue-600 */
+            border-bottom-color: #2563eb; /* blue-600 */
+            font-weight: 600;
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+            border-bottom: 2px solid transparent;
+        }
+        .diagram-component {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid #9ca3af; /* gray-400 */
+        }
+        .diagram-component:hover {
+            border-color: #3b82f6; /* blue-500 */
+            transform: scale(1.05);
+        }
+        .highlight {
+            border-color: #ef4444 !important; /* red-500 */
+            background-color: #fee2e2; /* red-100 */
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+        }
+        .line {
+            background-color: #9ca3af; /* gray-400 */
+            position: absolute;
+        }
+        .line-highlight {
+             background-color: #ef4444 !important; /* red-500 */
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Circuito de Rampa de Doble Acceso</h1>
+            <p class="text-sm md:text-base text-slate-600">Una exploración interactiva del sistema hidráulico y eléctrico.</p>
+        </div>
+        <nav class="bg-slate-100">
+            <div class="container mx-auto px-6 flex justify-center space-x-4 sm:space-x-8 text-sm sm:text-base">
+                <a href="#overview" class="nav-link py-3 px-2 section-active" data-section="overview">Visión General</a>
+                <a href="#hydraulic" class="nav-link py-3 px-2" data-section="hydraulic">Circuito Hidráulico</a>
+                <a href="#electric" class="nav-link py-3 px-2" data-section="electric">Circuito Eléctrico</a>
+                <a href="#simulation" class="nav-link py-3 px-2" data-section="simulation">Simulación</a>
+                <a href="#safety" class="nav-link py-3 px-2" data-section="safety">Seguridad</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-6 space-y-16">
+
+        <!-- Section: Overview -->
+        <section id="overview" class="space-y-6">
+            <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-blue-200 pb-2">Visión General del Sistema</h2>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="text-slate-700 space-y-4">
+                    <p>Esta aplicación desglosa el funcionamiento de un sistema automatizado de rampa de doble acceso, diseñado para gestionar de forma segura la entrada de vehículos a un primer piso o a un subsuelo.</p>
+                    <p>El sistema se fundamenta en la sinergia de dos circuitos principales: un <b class="font-semibold text-blue-700">circuito hidráulico</b> robusto que proporciona la fuerza para mover la rampa, y un <b class="font-semibold text-blue-700">circuito eléctrico de control</b> inteligente que actúa como el cerebro, orquestando cada movimiento con precisión.</p>
+                    <p>Explore las siguientes secciones para comprender cada componente y observar una simulación de cómo operan en conjunto.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg border border-slate-200 flex flex-col items-center justify-center space-y-4 min-h-[300px]">
+                     <div class="flex items-center space-x-2">
+                        <div class="text-center p-3 border-2 border-slate-400 rounded-lg bg-slate-50">
+                            <span class="text-2xl">??</span>
+                            <p class="font-semibold">Vehículo</p>
+                        </div>
+                        <div class="text-3xl text-slate-400 font-light">?</div>
+                        <div class="text-center p-3 border-2 border-slate-400 rounded-lg bg-slate-50">
+                            <span class="text-2xl">??</span>
+                            <p class="font-semibold">Sensores</p>
+                        </div>
+                    </div>
+                    <div class="text-3xl text-slate-400 font-light">?</div>
+                     <div class="text-center p-3 border-2 border-blue-500 rounded-lg bg-blue-50">
+                        <span class="text-2xl">??</span>
+                        <p class="font-semibold">PLC (Control)</p>
+                    </div>
+                     <div class="text-3xl text-slate-400 font-light">?</div>
+                    <div class="flex items-center space-x-2">
+                         <div class="text-center p-3 border-2 border-slate-400 rounded-lg bg-slate-50">
+                            <span class="text-2xl">??</span>
+                            <p class="font-semibold">Sistema Hidráulico</p>
+                        </div>
+                        <div class="text-3xl text-slate-400 font-light">?</div>
+                        <div class="text-center p-3 border-2 border-slate-400 rounded-lg bg-slate-50">
+                            <span class="text-2xl">??</span>
+                            <p class="font-semibold">Movimiento Rampa</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Hydraulic Circuit -->
+        <section id="hydraulic" class="space-y-6">
+            <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-blue-200 pb-2">Circuito Hidráulico</h2>
+            <p class="text-slate-700">El circuito hidráulico es la fuerza bruta del sistema. Utiliza aceite a presión para generar el movimiento necesario para levantar la rampa. Haga clic en cada componente del diagrama para ver su descripción. Este es un sistema de "centro abierto", lo que significa que en reposo, el aceite circula libremente al tanque, ahorrando energía.</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="md:col-span-2 bg-white p-6 rounded-lg shadow-lg border border-slate-200 relative min-h-[400px]">
+                    <!-- Diagram Lines -->
+                    <div id="line-t-vd" class="line" style="left: 50%; top: 85%; width: 2px; height: 10%;"></div>
+                    <div id="line-vd-c" class="line" style="left: 75%; top: 40%; width: 2px; height: 45%;"></div>
+                    <div id="line-vd-p" class="line" style="left: 25%; top: 40%; width: 2px; height: 45%;"></div>
+                    <div id="line-p-t" class="line" style="left: 25%; top: 85%; width: 25%; height: 2px;"></div>
+                    
+                    <!-- Diagram Components -->
+                    <div id="h-tanque" class="diagram-component absolute bottom-4 left-1/2 -translate-x-1/2 w-40 p-3 rounded-lg bg-slate-100 text-center" data-id="h-tanque">
+                        <p class="font-semibold">Tanque de Aceite</p>
+                    </div>
+                    <div id="h-bomba" class="diagram-component absolute left-1/4 -translate-x-1/2 bottom-1/4 w-32 p-3 rounded-full bg-slate-100 text-center" data-id="h-bomba">
+                        <p class="font-semibold">Bomba</p>
+                    </div>
+                    <div id="h-valvula" class="diagram-component absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-48 p-3 rounded-lg bg-slate-100 text-center" data-id="h-valvula">
+                        <p class="font-semibold">Válvula Direccional 4/3</p>
+                    </div>
+                    <div id="h-cilindros" class="diagram-component absolute left-3/4 -translate-x-1/2 top-1/4 w-32 p-3 rounded-lg bg-slate-100 text-center" data-id="h-cilindros">
+                        <p class="font-semibold">Cilindros</p>
+                    </div>
+                </div>
+                <div id="hydraulic-info" class="bg-blue-50 p-6 rounded-lg border-2 border-dashed border-blue-200 flex flex-col justify-center items-center text-center">
+                    <p class="text-blue-700">Haga clic en un componente del diagrama para ver su descripción aquí.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Electric Circuit -->
+        <section id="electric" class="space-y-6">
+            <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-blue-200 pb-2">Circuito Eléctrico y de Control</h2>
+            <p class="text-slate-700">El circuito eléctrico es el cerebro. Utiliza un PLC (Controlador Lógico Programable) para leer las señales de las entradas (sensores) y tomar decisiones para activar las salidas (motores y solenoides) en la secuencia correcta.</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="md:col-span-2 bg-white p-6 rounded-lg shadow-lg border border-slate-200 relative min-h-[400px] flex justify-around items-center">
+                    <!-- Inputs Column -->
+                    <div class="flex flex-col space-y-4 items-center">
+                        <h3 class="font-bold text-lg mb-2">ENTRADAS (Sensores)</h3>
+                        <div id="e-sensores" class="diagram-component p-3 rounded-lg bg-slate-100 w-48 text-center" data-id="e-sensores">Sensores de Proximidad</div>
+                        <div id="e-fdc" class="diagram-component p-3 rounded-lg bg-slate-100 w-48 text-center" data-id="e-fdc">Fines de Carrera (FDC)</div>
+                        <div id="e-destino" class="diagram-component p-3 rounded-lg bg-slate-100 w-48 text-center" data-id="e-destino">Señal de Destino</div>
+                    </div>
+                    <!-- PLC Column -->
+                    <div class="flex flex-col items-center">
+                        <div class="text-3xl text-slate-400 font-light mb-8">?</div>
+                        <div id="e-plc" class="diagram-component p-6 rounded-lg bg-blue-100 border-blue-400 w-40 text-center" data-id="e-plc">
+                            <p class="font-bold text-xl">PLC</p>
+                        </div>
+                        <div class="text-3xl text-slate-400 font-light mt-8">?</div>
+                    </div>
+                    <!-- Outputs Column -->
+                    <div class="flex flex-col space-y-4 items-center">
+                         <h3 class="font-bold text-lg mb-2">SALIDAS (Actuadores)</h3>
+                        <div id="e-motor-bomba" class="diagram-component p-3 rounded-lg bg-slate-100 w-48 text-center" data-id="e-motor-bomba">Motor de la Bomba</div>
+                        <div id="e-solenoides" class="diagram-component p-3 rounded-lg bg-slate-100 w-48 text-center" data-id="e-solenoides">Solenoides (Y1/Y2)</div>
+                        <div id="e-motores-porton" class="diagram-component p-3 rounded-lg bg-slate-100 w-48 text-center" data-id="e-motores-porton">Motores de Portones</div>
+                    </div>
+                </div>
+                <div id="electric-info" class="bg-blue-50 p-6 rounded-lg border-2 border-dashed border-blue-200 flex flex-col justify-center items-center text-center">
+                    <p class="text-blue-700">Haga clic en un componente del diagrama para ver su descripción aquí.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Simulation -->
+        <section id="simulation" class="space-y-6">
+            <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-blue-200 pb-2">Simulación de Funcionamiento</h2>
+            <p class="text-slate-700">Vea el sistema en acción. Elija un destino para el vehículo y observe cómo los componentes eléctricos y hidráulicos se activan en secuencia para completar la operación. Los componentes activos se resaltarán en rojo en los diagramas.</p>
+            <div class="flex justify-center space-x-4 mb-6">
+                <button id="sim-piso1-btn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-lg">Destino: Primer Piso</button>
+                <button id="sim-subsuelo-btn" class="bg-slate-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 transition duration-300 shadow-lg">Destino: Subsuelo</button>
+            </div>
+            <div id="simulation-status" class="bg-white p-6 rounded-lg shadow-lg border border-slate-200 min-h-[100px] flex items-center justify-center">
+                <p id="simulation-text" class="text-slate-600 text-lg text-center font-medium">Seleccione un destino para iniciar la simulación.</p>
+            </div>
+        </section>
+
+        <!-- Section: Safety -->
+        <section id="safety" class="space-y-6">
+            <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-blue-200 pb-2">Consideraciones de Seguridad</h2>
+             <p class="text-slate-700">La seguridad es primordial en un sistema automatizado. Se han incorporado varias características para proteger tanto a los usuarios como a los vehículos.</p>
+            <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow border border-slate-200">
+                    <h3 class="font-bold text-lg mb-2 text-red-600">?? Parada de Emergencia (E-stop)</h3>
+                    <p>Botones de fácil acceso ubicados en puntos estratégicos que cortan inmediatamente toda la energía del sistema en caso de una emergencia.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow border border-slate-200">
+                    <h3 class="font-bold text-lg mb-2 text-yellow-600">??? Sensores de Obstáculos</h3>
+                    <p>Sensores de luz o presión en los portones que detectan cualquier obstrucción, evitando que se cierren sobre un vehículo o persona.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow border border-slate-200">
+                    <h3 class="font-bold text-lg mb-2 text-blue-600">?? Alarmas Visuales y Sonoras</h3>
+                    <p>Luces intermitentes y alarmas acústicas se activan durante el movimiento de la rampa y los portones para alertar a cualquiera que se encuentre cerca.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-white mt-16">
+        <div class="container mx-auto px-6 py-4 text-center text-sm">
+            <p>&copy; 2025 Explorador de Sistemas de Rampa. Aplicación generada con fines educativos.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const componentData = {
+                'h-tanque': { title: 'Tanque de Aceite', description: 'Contiene el fluido hidráulico. Actúa como disipador de calor y permite que las burbujas de aire se liberen del fluido.' },
+                'h-bomba': { title: 'Bomba de Engranajes', description: 'Impulsada por un motor eléctrico de 1.5 HP, genera el flujo de aceite necesario para extender los cilindros.' },
+                'h-valvula': { title: 'Válvula Direccional 4/3', description: 'Controla la dirección del flujo de aceite. Su centro abierto minimiza el consumo de energía y el sobrecalentamiento en reposo.' },
+                'h-cilindros': { title: 'Cilindros de Doble Efecto', description: 'Se extienden para levantar la rampa y se retraen por gravedad para descenderla. Están sincronizados para un movimiento uniforme.' },
+                'e-plc': { title: 'PLC (Controlador Lógico Programable)', description: 'El "cerebro" del sistema. Procesa las señales de los sensores y activa los actuadores según la lógica programada.' },
+                'e-sensores': { title: 'Sensores de Proximidad', description: 'Detectan la presencia de un vehículo para iniciar la secuencia de operación.' },
+                'e-fdc': { title: 'Fines de Carrera (FDC)', description: 'Interruptores que detectan cuándo la rampa o los portones han llegado a sus posiciones finales (arriba, abajo, cerrado).' },
+                'e-destino': { title: 'Señal de Destino', description: 'Puede ser un lector de tarjetas, RFID o un panel de control que informa al PLC si el vehículo va al primer piso o al subsuelo.' },
+                'e-motor-bomba': { title: 'Motor de la Bomba', description: 'Activa la bomba hidráulica para generar presión en el sistema.' },
+                'e-solenoides': { title: 'Solenoides (Y1 / Y2)', description: 'Válvulas electromagnéticas que, al ser activadas por el PLC, cambian la posición de la válvula direccional para subir (Y1) o bajar (Y2) la rampa.' },
+                'e-motores-porton': { title: 'Motores de Portones', description: 'Activan la apertura y cierre del portón de acceso principal y del portón de seguridad del primer piso.' }
+            };
+
+            const hydraulicDiagram = document.querySelector('#hydraulic');
+            const electricDiagram = document.querySelector('#electric');
+
+            function setupDiagram(diagramElement, infoPanelId) {
+                const infoPanel = document.getElementById(infoPanelId);
+                diagramElement.querySelectorAll('.diagram-component').forEach(comp => {
+                    comp.addEventListener('click', () => {
+                        const data = componentData[comp.dataset.id];
+                        infoPanel.innerHTML = `<h3 class="font-bold text-lg mb-2 text-blue-800">${data.title}</h3><p class="text-blue-900">${data.description}</p>`;
+                        
+                        diagramElement.querySelectorAll('.diagram-component').forEach(c => c.style.borderColor = '#9ca3af');
+                        comp.style.borderColor = '#2563eb';
+                    });
+                });
+            }
+
+            setupDiagram(hydraulicDiagram, 'hydraulic-info');
+            setupDiagram(electricDiagram, 'electric-info');
+
+            // Nav link active state
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 150) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('section-active');
+                    if (link.dataset.section === current) {
+                        link.classList.add('section-active');
+                    }
+                });
+            });
+
+
+            // Simulation Logic
+            const simPiso1Btn = document.getElementById('sim-piso1-btn');
+            const simSubsueloBtn = document.getElementById('sim-subsuelo-btn');
+            const simText = document.getElementById('simulation-text');
+            let isSimulating = false;
+
+            const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+            
+            const highlightElements = (ids, state) => {
+                ids.forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) {
+                       state ? el.classList.add('highlight') : el.classList.remove('highlight');
+                    }
+                });
+            };
+
+            async function runPiso1Simulation() {
+                if (isSimulating) return;
+                isSimulating = true;
+                simPiso1Btn.disabled = true;
+                simSubsueloBtn.disabled = true;
+
+                simText.textContent = "1. Vehículo detectado por sensor de proximidad.";
+                highlightElements(['e-sensores'], true);
+                await sleep(2000);
+                highlightElements(['e-sensores'], false);
+
+                simText.textContent = "2. Señal de destino 'Primer Piso' enviada al PLC.";
+                highlightElements(['e-destino', 'e-plc'], true);
+                await sleep(2000);
+
+                simText.textContent = "3. PLC activa el motor de la bomba y el solenoide Y1 para ascender la rampa.";
+                highlightElements(['e-motor-bomba', 'e-solenoides', 'h-bomba', 'h-valvula'], true);
+                await sleep(3000);
+
+                simText.textContent = "4. Los cilindros se extienden, levantando la rampa.";
+                highlightElements(['h-cilindros'], true);
+                await sleep(2500);
+
+                simText.textContent = "5. FDC 'Rampa Arriba' detecta la posición. PLC detiene la bomba y abre el portón de acceso.";
+                highlightElements(['e-fdc', 'e-motores-porton'], true);
+                await sleep(3000);
+
+                simText.textContent = "Simulación completada. El vehículo puede ingresar al primer piso.";
+                highlightElements(['e-destino', 'e-plc', 'e-motor-bomba', 'e-solenoides', 'h-bomba', 'h-valvula', 'h-cilindros', 'e-fdc', 'e-motores-porton'], false);
+                isSimulating = false;
+                simPiso1Btn.disabled = false;
+                simSubsueloBtn.disabled = false;
+            }
+
+            async function runSubsueloSimulation() {
+                if (isSimulating) return;
+                isSimulating = true;
+                simPiso1Btn.disabled = true;
+                simSubsueloBtn.disabled = true;
+                
+                simText.textContent = "1. Vehículo detectado y señal de destino 'Subsuelo' enviada al PLC.";
+                highlightElements(['e-sensores', 'e-destino', 'e-plc'], true);
+                await sleep(2000);
+
+                simText.textContent = "2. PLC ordena el cierre del portón de seguridad del primer piso.";
+                highlightElements(['e-motores-porton'], true);
+                await sleep(2500);
+                
+                simText.textContent = "3. FDC confirma portón cerrado. PLC activa solenoide Y2 para descender la rampa.";
+                highlightElements(['e-fdc', 'e-solenoides', 'h-valvula'], true);
+                await sleep(3000);
+
+                simText.textContent = "4. La rampa desciende por gravedad, los cilindros se retraen.";
+                 highlightElements(['h-cilindros'], true);
+                await sleep(2500);
+                
+                simText.textContent = "5. FDC 'Rampa Abajo' detecta la posición. PLC abre el portón de acceso principal.";
+                highlightElements(['e-fdc', 'e-motores-porton'], true);
+                await sleep(3000);
+
+                simText.textContent = "Simulación completada. El vehículo puede ingresar al subsuelo.";
+                highlightElements(['e-sensores', 'e-destino', 'e-plc', 'e-motores-porton', 'e-fdc', 'e-solenoides', 'h-valvula', 'h-cilindros'], false);
+                isSimulating = false;
+                simPiso1Btn.disabled = false;
+                simSubsueloBtn.disabled = false;
+            }
+
+            simPiso1Btn.addEventListener('click', runPiso1Simulation);
+            simSubsueloBtn.addEventListener('click', runSubsueloSimulation);
+        });
+    </script>
+</body>
+</html>
